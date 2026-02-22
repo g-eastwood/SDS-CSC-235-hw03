@@ -6,8 +6,8 @@ let myData = [
       "family": "Indo-European",
       "branch": "Germanic",
       "first_language_millions": "390",
-      "second_language_millions": "1,138",
-      "total_millions": "1,528"
+      "second_language_millions": "1138",
+      "total_millions": "1528"
     },
     {
       "language": "Mandarin Chinese(incl. Standard Chinese but excl. other varieties)",
@@ -15,7 +15,7 @@ let myData = [
       "branch": "Sinitic",
       "first_language_millions": "990",
       "second_language_millions": "194",
-      "total_millions": "1,184"
+      "total_millions": "1184"
     },
     {
       "language": "Hindi(excl. Urdu)",
@@ -298,3 +298,80 @@ let myData = [
       "total_millions": "52"
     }
   ]
+
+let height = 500;
+let width = 2400;
+let margin = 50;
+
+let frame = d3.select("#langchart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height+500); 
+
+let linearScale = d3.scaleLinear()
+        .domain([20, 1600])
+        .range([height-margin, margin]);
+
+frame.append("g")
+        .attr("transform", `translate(${margin}, 0)`)
+        .call(d3.axisLeft(linearScale));
+
+let bandScale = d3.scaleBand()
+        .domain(myData.map(function(d) { return d.language; }))
+        .range([margin, width-margin])
+        .padding(0.2);
+
+frame.append("g")
+        .attr("transform", `translate(0, ${height-margin})`)
+        .call(d3.axisBottom(bandScale))
+        .selectAll("text")
+        .attr("transform", "rotate(10)")
+        .attr("text-anchor", "start");
+
+frame.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -(height / 2))
+        .attr("y", 12)
+        .attr("text-anchor", "middle")
+        .text("Total Speakers (Millions)");        
+
+frame.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin - 10)
+        .attr("text-anchor", "middle")
+        .text("Language");        
+
+frame.append("text")
+        .attr("x", width / 2)
+        .attr("y", margin / 2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .text("Most Spoken Languages in the World");        
+
+let selected = null;       
+
+frame.selectAll("rect")
+        .data(myData)
+        .join("rect")
+        .attr("x", function(d, i){
+          return bandScale(d.language);
+        })
+        .attr("y", function(d, i){
+          return (linearScale(d.total_millions));
+        })
+        .attr("width", bandScale.bandwidth())
+        .attr("height", function(d,i){
+          return ((height-margin) - linearScale(d.total_millions));
+        })
+        .attr("fill", "black")
+        .on("click", function(event, d) {
+          frame.selectAll("rect").attr("fill", "black");
+          if (selected === d) {
+            selected = null;
+          } 
+          else {
+            d3.select(this).attr("fill", "steelblue");
+            selected = d;
+          }
+        });
+      
