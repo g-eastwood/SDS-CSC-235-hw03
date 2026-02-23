@@ -298,7 +298,7 @@ let myData = [
       "total_millions": "52"
     }
   ]
-
+// language bar chart code goes here  
 let height = 500;
 let width = 2400;
 let margin = 50;
@@ -374,4 +374,39 @@ frame.selectAll("rect")
             selected = d;
           }
         });
-      
+
+// language pie chart code goes here
+let height2 = 500;
+let width2 = 500;
+let radius = Math.min(width2, height2) / 2 - margin; 
+
+let familyData = d3.rollup(myData, v => d3.sum(v, d => +d.total_millions), d => d.family);
+
+familyData = Array.from(familyData, ([family, total_millions]) => ({ family, total_millions }));
+
+let pieFrame = d3.select("#langpie")
+        .append("svg")
+        .attr("width", width2)
+        .attr("height", height2)
+        .append("g")
+        .attr("transform", `translate(${width2 / 2}, ${height2 / 2})`);
+        
+let color = d3.scaleOrdinal()
+        .domain(familyData.map(function(d) { return d.family; }))
+        .range(d3.schemeCategory10);
+
+let pie = d3.pie()
+        .value(function(d) { return d.total_millions; });
+
+let arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius);
+
+pieFrame.selectAll("path")
+        .data(pie(familyData))
+        .enter()
+        .append("path")
+        .attr("d", arc)
+        .attr("fill", d => color(d.data.family))
+        .attr("stroke", "white")
+        .attr("stroke-width", "2px");
