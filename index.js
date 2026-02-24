@@ -410,3 +410,33 @@ pieFrame.selectAll("path")
         .attr("fill", d => color(d.data.family))
         .attr("stroke", "white")
         .attr("stroke-width", "2px");
+
+pieFrame.append("text")
+        .attr("x", width2 / 2)
+        .attr("y", margin / 2)
+        .attr("transform", `translate(${-width2 / 2}, ${-height2 / 2})`)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .text("Most Spoken Language Families in the World as Share of Total");
+
+pieFrame.selectAll("path")
+        .on("click", function(event, d) {
+          let total = d3.sum(familyData, d => d.total_millions);
+          let percentage = ((d.data.total_millions / total) * 100);
+          if (selected === d) {
+            pieFrame.selectAll(".label").remove();
+            selected = null;
+          } 
+          else {
+            pieFrame.selectAll(".label").remove();
+            d3.select(this)
+            pieFrame.append("text")
+            .attr("class", "label")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .text(`${d.data.family}: ${percentage.toFixed(1)}% of total`);
+            selected = d;
+          }
+        }); 
